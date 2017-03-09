@@ -5,6 +5,7 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
 import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec;
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Signature;
@@ -37,5 +38,30 @@ public class Main {
         if (!SIGNATURE_EXPECTED.equals(signstr)) {
             System.out.println("Not Equal!");
         }
+
+
+        ////
+        // go-wire       009E64C1B4731BE7DF39A40D5660D84E23885FC465DB5DDAD425789C68CF1A8E
+        // become  010120009e64c1b4731be7df39a40d5660d84e23885fc465db5ddad425789c68cf1a8e
+
+        byte[] pubkey_bin = Utils.hexToBytes(PUBLIC_KEY_HEX_STR);
+
+        byte[] pubkey_wire = new byte[35];
+        pubkey_wire[0] = 0x01;
+        pubkey_wire[1] = 0x01;
+        pubkey_wire[2] = 0x20;
+        System.arraycopy(pubkey_bin, 0, pubkey_wire, 3, 32);
+        System.out.println("pubkey_wire: " + Utils.bytesToHex(pubkey_wire));
+
+        // test the hash Ripemd160
+        Ripemd160 ripemd160 = new Ripemd160();
+        ripemd160.engineUpdate(pubkey_wire, 0, pubkey_wire.length);
+
+        String address = Utils.bytesToHex(ripemd160.engineDigest());
+        System.out.println("address: " + address);
+
+
     }
+
+
 }
